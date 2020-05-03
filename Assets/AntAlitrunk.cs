@@ -22,40 +22,43 @@ public class AntAlitrunk : MonoBehaviour
         shoulder2 = shoulder1;
         lastMainPosition = shoulder1.transform.position;
 
-        defaultTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position);
+        defaultTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position) * Mathf.Rad2Deg;
+        Debug.Log("Default:"  + defaultTrunkToShoulderAngle);
     }
 
     void FixedUpdate() {
 
-        float maxDistanceBetweenShoulders = 1.2f;
-        float distanceBetweenShoulders = Vector3.Distance(shoulder1.transform.position, shoulder2.transform.position);
-        if (distanceBetweenShoulders > maxDistanceBetweenShoulders) {
-            Debug.Log("dead ant");
+        //float maxDistanceBetweenShoulders = 1.2f;
+        //float distanceBetweenShoulders = Vector3.Distance(shoulder1.transform.position, shoulder2.transform.position);
+        //if (distanceBetweenShoulders > maxDistanceBetweenShoulders) {
+        //    Debug.Log("dead ant");
             //Destroy(this.gameObject);
-        } else {
+        //} else {
             
-            Vector3 currentMainPosition = shoulder1.transform.position;
-            mainPositionDelta = currentMainPosition - lastMainPosition;            
+            //Vector3 currentMainPosition = shoulder1.transform.position;
+            //mainPositionDelta = currentMainPosition - lastMainPosition;            
             
-            lastMainPosition = currentMainPosition;
+            //lastMainPosition = currentMainPosition;
 
-            float currentTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position);
-            float angleDelta = defaultTrunkToShoulderAngle - currentTrunkToShoulderAngle;
+            float currentTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position) * Mathf.Rad2Deg;
+            float angleDelta = Mathf.DeltaAngle(defaultTrunkToShoulderAngle, currentTrunkToShoulderAngle) * Mathf.Rad2Deg;
+
+            Debug.Log("AD:" + angleDelta);
+            
             if (angleDelta < 0) {
-                shoulder1.transform.Rotate(0.0f, 0.0f,  1 * defaultTrunkToShoulderAngle);
-                Debug.Log(shoulder1.transform.rotation);
-                Debug.Log(angleDelta);
+                shoulder1.transform.rotation = Quaternion.Euler(angleDelta, 0.0f, 0.0f);
             } else if (angleDelta > 0) {
-                shoulder1.transform.Rotate(0.0f, 0.0f, -1 * defaultTrunkToShoulderAngle);
-                Debug.Log(shoulder1.transform.rotation);
-                Debug.Log("pos rotation");
+               // shoulder1.transform.Rotate(0.0f, 0.0f, (angleDelta + 1.04f) *  1);              
             }
 
-            defaultTrunkToShoulderAngle = currentTrunkToShoulderAngle;
+            //defaultTrunkToShoulderAngle = currentTrunkToShoulderAngle;
 
-            if (shoulder1.transform.rotation.x > 1.04f) {       
-                transform.position = Vector3.MoveTowards(transform.position, shoulder1.transform.position, 2.0f * Time.deltaTime);
+            if (shoulder1.transform.rotation.z > 1.04f) {       
+                Debug.Log("Move body");
+                //transform.position = Vector3.MoveTowards(transform.position, shoulder1.transform.position, 2.0f * Time.deltaTime);
+            } else {
+                
             }
-        }
+        //}
     }
 }
