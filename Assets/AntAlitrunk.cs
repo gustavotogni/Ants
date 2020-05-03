@@ -22,7 +22,7 @@ public class AntAlitrunk : MonoBehaviour
         shoulder2 = shoulder1;
         lastMainPosition = shoulder1.transform.position;
 
-        defaultTrunkToShoulderAngle = Vector3.SignedAngle(transform.position, shoulder1.transform.position, new Vector3(0.0f, 0.0f, 1.0f));
+        defaultTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position);
     }
 
     void FixedUpdate() {
@@ -36,24 +36,26 @@ public class AntAlitrunk : MonoBehaviour
             
             Vector3 currentMainPosition = shoulder1.transform.position;
             mainPositionDelta = currentMainPosition - lastMainPosition;            
-
-            foreach(var bodyPart in bodyParts) {
-                    //bodyPart.transform.position += mainPositionDelta;
-            
-            }
             
             lastMainPosition = currentMainPosition;
 
-            float currentTrunkToShoulderAngle = Vector3.SignedAngle(transform.position, shoulder1.transform.position, new Vector3(0.0f, 0.0f, 1.0f));
+            float currentTrunkToShoulderAngle = Vector3.Angle(transform.position, shoulder1.transform.position);
             float angleDelta = defaultTrunkToShoulderAngle - currentTrunkToShoulderAngle;
             if (angleDelta < 0) {
-                shoulder1.transform.Rotate(0.0f, 0.0f, 1.0f);
+                shoulder1.transform.Rotate(0.0f, 0.0f,  1 * defaultTrunkToShoulderAngle);
+                Debug.Log(shoulder1.transform.rotation);
+                Debug.Log(angleDelta);
             } else if (angleDelta > 0) {
-                shoulder1.transform.Rotate(0.0f, 0.0f, -1.0f);
+                shoulder1.transform.Rotate(0.0f, 0.0f, -1 * defaultTrunkToShoulderAngle);
+                Debug.Log(shoulder1.transform.rotation);
+                Debug.Log("pos rotation");
             }
 
             defaultTrunkToShoulderAngle = currentTrunkToShoulderAngle;
 
+            if (shoulder1.transform.rotation.x > 1.04f) {       
+                transform.position = Vector3.MoveTowards(transform.position, shoulder1.transform.position, 2.0f * Time.deltaTime);
+            }
         }
     }
 }

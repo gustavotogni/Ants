@@ -5,16 +5,13 @@ using UnityEngine;
 public class AntClaw : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-
+    private List<Vector3> _clawDestinations;
+    private bool _adheredToSomething = false;
+    
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        clawDestinationB = transform.position;
     }
-
-    Vector3 clawDestinationA;
-    Vector3 clawDestinationB;
-    Vector3 clawDestinationC;
 
     void Update()
     {
@@ -23,55 +20,35 @@ public class AntClaw : MonoBehaviour
             _rigidbody.AddForce(new Vector3(0.0f, 10.0f, 0.0f), ForceMode.Impulse);
         }
 
-        if (Input.GetKeyDown(KeyCode.X)) {
-            _rigidbody.isKinematic = false;
-            clawDestinationA = transform.position + new Vector3(1.0f, 5.0f, 0.0f);
-            MoveClawA(); 
-            
-        }
-
         if (Input.GetKeyDown(KeyCode.C)) {
+
             _rigidbody.isKinematic = false;
             _rigidbody.useGravity = false;
 
-            clawDestinationB = transform.position + new Vector3(0.0f,  2.0f, 0.0f);
-            clawDestinationC = transform.position + new Vector3(0.0f, -1.0f, 0.0f);
-            moveToB = true;
+            _clawDestinations = new List<Vector3>();
+            _clawDestinations.Add(transform.position + new Vector3(0.0f,  2.0f, 0.0f));
+            _clawDestinations.Add(transform.position + new Vector3(1.0f,  2.0f, 0.0f));
+            _clawDestinations.Add(transform.position + new Vector3(1.0f, -1.0f, 0.0f));
         }
 
         
-        MoveClawB(); 
+        if (_clawDestinations != null) {
+        	MoveClawB(); 
+        }
     }
 
-    private bool moveToB = false;
-    private bool moveToC = false;
-
+    
     void MoveClawB() {
         
-        if (moveToB) {
-            if (Vector3.Distance(transform.position, clawDestinationB) > 1.0f) {            
-                transform.position = Vector3.MoveTowards(transform.position, clawDestinationB, 2.0f * Time.deltaTime);
+        if (_clawDestinations.Count > 0) {
+        	Vector3 currentDestination = _clawDestinations[0];
+        	if (Vector3.Distance(transform.position, currentDestination) > 1.0f) {            
+                transform.position = Vector3.MoveTowards(transform.position, currentDestination, 2.0f * Time.deltaTime);
             } else {
-                clawDestinationB = transform.position;
-                moveToB = false;
-                moveToC = true;
-            }
-        } else if (moveToC) {
-            if (Vector3.Distance(transform.position, clawDestinationC) > 1.0f) {            
-                transform.position = Vector3.MoveTowards(transform.position, clawDestinationC, 2.0f * Time.deltaTime);
-            } else {
-                clawDestinationC = transform.position;
-                moveToC = false;
+            	_clawDestinations.RemoveAt(0);
             }
         }
     }
-
-    void MoveClawA() {
-        
-        //_rigidbody.AddForce(new Vector3(1.0f, 5.0f, 0.0f), ForceMode.Impulse);
-    }
-
-    private bool _adheredToSomething = false;
     
     void OnCollisionEnter(Collision other) {
         
@@ -93,9 +70,7 @@ public class AntClaw : MonoBehaviour
         Debug.Log("exit floor");
         if(other.collider.tag == "floor") {
             //_rigidbody.isKinematic = false;
-            _adheredToSomething = false;
-            
-            
+            _adheredToSomething = false;                        
         }
     }
 }
