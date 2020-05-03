@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AntLeg : MonoBehaviour
-{    
+{        
+    public GameObject shoulder;
     public GameObject femur;
     public GameObject tibia;
     public GameObject tarsus;
     public GameObject claw;
 
     private List<GameObject> bodyParts;
-
     private List<Vector3> defaultBodyPartsOffset;
     private Vector3 lastMainPosition; 
     private Vector3 mainPositionDelta;
@@ -18,24 +18,12 @@ public class AntLeg : MonoBehaviour
     void Start()
     {
         bodyParts = new List<GameObject>();
+        bodyParts.Add(shoulder);
         bodyParts.Add(femur);
         bodyParts.Add(tibia);
-        bodyParts.Add(tarsus);
-        //bodyParts.Add(claw);
+        bodyParts.Add(tarsus);       
 
-        lastMainPosition = claw.transform.position;
-        
-        
-        foreach(var bodyPart in bodyParts) {
-
-            //Vector3.Distance(bodyPart.transform.position);
-            //defaultBodyPartsOffset.Add(
-        }              
-    }
-
-    void Update()
-    {
-         //claw.transform.Translate(new Vector3(0.1f * Time.deltaTime, 0.0f, 0.0f));
+        lastMainPosition = claw.transform.position; 
     }
 
     void FixedUpdate() {
@@ -43,14 +31,8 @@ public class AntLeg : MonoBehaviour
         Vector3 currentMainPosition = claw.transform.position;
         mainPositionDelta = currentMainPosition - lastMainPosition;            
 
-        int i = 0;
         foreach(var bodyPart in bodyParts) {
-            if (i <= 0) {
-                bodyPart.transform.position += mainPositionDelta;
-                i++;
-            } else {
-                break;
-            }            
+            bodyPart.transform.position += mainPositionDelta;                         
         }
         
         lastMainPosition = currentMainPosition;

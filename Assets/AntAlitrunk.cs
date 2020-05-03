@@ -12,14 +12,17 @@ public class AntAlitrunk : MonoBehaviour
     private List<Vector3> defaultBodyPartsOffset;
     private Vector3 lastMainPosition; 
     private Vector3 mainPositionDelta;
+    private float defaultTrunkToShoulderAngle;
 
     void Start()
     {
         bodyParts = new List<GameObject>();
         bodyParts.Add(this.gameObject);
-        bodyParts.Add(shoulder2);
-        
+        bodyParts.Add(shoulder1);
+        shoulder2 = shoulder1;
         lastMainPosition = shoulder1.transform.position;
+
+        defaultTrunkToShoulderAngle = Vector3.SignedAngle(transform.position, shoulder1.transform.position, new Vector3(0.0f, 0.0f, 1.0f));
     }
 
     void FixedUpdate() {
@@ -34,17 +37,23 @@ public class AntAlitrunk : MonoBehaviour
             Vector3 currentMainPosition = shoulder1.transform.position;
             mainPositionDelta = currentMainPosition - lastMainPosition;            
 
-            int i = 0;
             foreach(var bodyPart in bodyParts) {
-                if (i <= 0) {
                     //bodyPart.transform.position += mainPositionDelta;
-                    i++;
-                } else {
-                    break;
-                }            
+            
             }
             
             lastMainPosition = currentMainPosition;
+
+            float currentTrunkToShoulderAngle = Vector3.SignedAngle(transform.position, shoulder1.transform.position, new Vector3(0.0f, 0.0f, 1.0f));
+            float angleDelta = defaultTrunkToShoulderAngle - currentTrunkToShoulderAngle;
+            if (angleDelta < 0) {
+                shoulder1.transform.Rotate(0.0f, 0.0f, 1.0f);
+            } else if (angleDelta > 0) {
+                shoulder1.transform.Rotate(0.0f, 0.0f, -1.0f);
+            }
+
+            defaultTrunkToShoulderAngle = currentTrunkToShoulderAngle;
+
         }
     }
 }
