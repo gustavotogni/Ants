@@ -45,8 +45,9 @@ public class AntAlitrunk : MonoBehaviour
 
             Debug.Log("AD:" + angleDelta);
             
+            //shoulder1.transform.LookAt(transform.position);
             if (angleDelta < 0) {
-                shoulder1.transform.rotation = Quaternion.Euler(angleDelta, 0.0f, 0.0f);
+                
             } else if (angleDelta > 0) {
                // shoulder1.transform.Rotate(0.0f, 0.0f, (angleDelta + 1.04f) *  1);              
             }

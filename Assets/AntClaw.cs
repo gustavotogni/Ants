@@ -4,13 +4,30 @@ using UnityEngine;
 
 public class AntClaw : MonoBehaviour
 {
+ 
+    public List<GameObject> _otherLegParts;
+ 
     private Rigidbody _rigidbody;
     private List<Vector3> _clawDestinations;
     private bool _adheredToSomething = false;
     
+    
+    private List<Vector3> defaultBodyPartsOffset;
+    private Vector3 lastMainPosition; 
+    private Vector3 mainPositionDelta;
+    public GameObject tarsus;
+
     void Start()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        _rigidbody = GetComponent<Rigidbody>();      
+    }
+
+    void FixedUpdate() {
+        
+        Vector3 currentMainPosition = transform.position;
+        mainPositionDelta = currentMainPosition - lastMainPosition;            
+
+        lastMainPosition = currentMainPosition;
     }
 
     void Update()
@@ -31,13 +48,11 @@ public class AntClaw : MonoBehaviour
             _clawDestinations.Add(transform.position + new Vector3(1.0f, -1.0f, 0.0f));
         }
 
-        
         if (_clawDestinations != null) {
         	MoveClawB(); 
         }
     }
 
-    
     void MoveClawB() {
         
         if (_clawDestinations.Count > 0) {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AntLeg : MonoBehaviour
 {        
@@ -9,32 +10,17 @@ public class AntLeg : MonoBehaviour
     public GameObject tibia;
     public GameObject tarsus;
     public GameObject claw;
+    public Text guiText;
 
-    private List<GameObject> bodyParts;
-    private List<Vector3> defaultBodyPartsOffset;
-    private Vector3 lastMainPosition; 
-    private Vector3 mainPositionDelta;
+    private ABP_References abpRefs;
 
-    void Start()
-    {
-        bodyParts = new List<GameObject>();
-        bodyParts.Add(shoulder);
-        bodyParts.Add(femur);
-        bodyParts.Add(tibia);
-        bodyParts.Add(tarsus);       
-
-        lastMainPosition = claw.transform.position; 
+    void Start() {
+        abpRefs = new ABP_References(new List<GameObject>{claw, tarsus, tibia, femur, shoulder});
     }
 
     void FixedUpdate() {
-        
-        Vector3 currentMainPosition = claw.transform.position;
-        mainPositionDelta = currentMainPosition - lastMainPosition;            
 
-        foreach(var bodyPart in bodyParts) {
-            bodyPart.transform.position += mainPositionDelta;                         
-        }
-        
-        lastMainPosition = currentMainPosition;
+        guiText.text = Time.deltaTime.ToString();
+        abpRefs.DoLogic();
     }
 }
