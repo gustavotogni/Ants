@@ -10,17 +10,29 @@ public class AntLeg : MonoBehaviour
     public GameObject tibia;
     public GameObject tarsus;
     public GameObject claw;
+
+    public GameObject femurJoint;
+    public GameObject tibiaJoint;
+    public GameObject tarsusJoint;
+
     public Text guiText;
 
     private ABP_References abpRefs;
 
+    
+
     void Start() {
-        abpRefs = new ABP_References(new List<GameObject>{claw, tarsus, tibia, femur, shoulder});
+        abpRefs = new ABP_References(new List<GameObject>{claw, tarsus, tarsusJoint, tibia, tibiaJoint, femur, femurJoint, shoulder});
     }
 
     void FixedUpdate() {
 
         guiText.text = Time.deltaTime.ToString();
         abpRefs.DoLogic();
+        
+        if (Input.GetKeyDown(KeyCode.B)) {
+            abpRefs.DoLogicTwo();
+
+        }
     }
 }
