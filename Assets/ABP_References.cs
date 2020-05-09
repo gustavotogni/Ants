@@ -65,10 +65,10 @@ public class ABP_References {
                     toRotation.y > 0f ||
                     toRotation.z > 0f 
                 ) {
-                    _antBodyParts[i].transform.rotation = Quaternion.Lerp(_antBodyParts[i].transform.rotation, toRotation, 20.0f * Time.time);    
+                    _antBodyParts[i].transform.rotation = toRotation;//Quaternion.Lerp(_antBodyParts[i].transform.rotation, toRotation, 20.0f * Time.time);    
 
-                    Debug.Log("roit" + _antBodyParts[i].transform.rotation);
-                     Debug.Log("norm" + toRotation.x + ":"+ toRotation.y + ":"+ toRotation.z);
+                    Debug.Log("roit" + _antBodyParts[i].transform.rotation.eulerAngles);
+                     Debug.Log("norm" + toRotation.eulerAngles);
 
                                      Debug.Log(
                         string.Format("Rotated {0} towards {1}. To Rotation: {2}", 
