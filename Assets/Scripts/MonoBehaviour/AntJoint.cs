@@ -17,7 +17,7 @@ public class AntJoint : MonoBehaviour
     void Start() {
         
         _rigidbody = GetComponent<Rigidbody>();      
-        abpRefs = new AntBodyParts(gameObject, new List<GameObject>{partFrom, gameObject, partTo}); 
+        abpRefs = new AntBodyParts(gameObject, new List<GameObject>{partFrom, partTo}); 
     }
 
     void FixedUpdate() {
@@ -26,20 +26,24 @@ public class AntJoint : MonoBehaviour
         mainPositionDelta = currentMainPosition - lastMainPosition;
         lastMainPosition = currentMainPosition;
 
-        abpRefs.MoveBodyParts();
+        abpRefs.MoveBodyPartsNew();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.J)) {
 
-            _rigidbody.isKinematic = false;
-            _rigidbody.useGravity = false;
+            //_rigidbody.isKinematic = false;
+            //_rigidbody.useGravity = false;
 
             _clawDestinations = new List<Vector3>();
             _clawDestinations.Add(transform.position + new Vector3(0.0f,  2.0f, 0.0f));
             _clawDestinations.Add(transform.position + new Vector3(1.0f,  2.0f, 0.0f));
             _clawDestinations.Add(transform.position + new Vector3(1.0f, -1.0f, 0.0f));
+        }
+
+        if (Input.GetKeyDown(KeyCode.T)) {
+            abpRefs.MoveBodyPartsNew();
         }
 
         if (_clawDestinations != null) {

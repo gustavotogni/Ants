@@ -8,153 +8,79 @@ public class AntBodyParts {
     private List<Vector3> _lastBodyPartPositions; 
     private List<float> _maxDistancesToPreviousPart;
 
-    public AntBodyParts(GameObject go, List<GameObject> antBodyParts) {
+    private GameObject _joint;
+    private Vector3 _lastJointPosition;
+
+    public AntBodyParts(GameObject joint, List<GameObject> antBodyParts) {
         
         _antBodyParts = antBodyParts;        
         _lastBodyPartPositions = new List<Vector3>();
         _maxDistancesToPreviousPart = new List<float>();
         
-        GameObject previousBodyPart = null;
-        foreach(var bodyPart in _antBodyParts) {
-                        
-            if (previousBodyPart != null) {                
-                _maxDistancesToPreviousPart.Add(Vector3.Distance(bodyPart.transform.position, previousBodyPart.transform.position));
-            }
-
+        _joint = joint;
+        _lastJointPosition = _joint.transform.position;
+        
+        foreach(var bodyPart in _antBodyParts) {          
+            _maxDistancesToPreviousPart.Add(Vector3.Distance(bodyPart.transform.position, _joint.transform.position));
             _lastBodyPartPositions.Add(bodyPart.transform.position);
-            bodyPart.transform.parent = go.transform;
-            previousBodyPart = bodyPart;            
         }  
     }
 
-    public void MoveBodyParts () {
+    public void MoveBodyPartsNew () {
 
-        GameObject previousBodyPart = null;
+        GameObject refBodyParty = _joint;
         for(int i = 0; i < _antBodyParts.Count; i++) {
             
-            var bodyPart = _antBodyParts[i];            
-            if (previousBodyPart != null) {            
+            var curBodyPart = _antBodyParts[i];   
                                 
-                Vector3 currBodyPartPos = bodyPart.transform.position;
-                Vector3 prevBodyPartPos = previousBodyPart.transform.position;
+            Vector3 curBodyPartPos = curBodyPart.transform.position;
+            Vector3 refBodyPartPos = refBodyParty.transform.position;                
 
+            float curDistanceToReferencePart = Vector3.Distance(curBodyPartPos, refBodyPartPos);
+            float maxDistanceToReferencePart = _maxDistancesToPreviousPart[i];
+
+            if (curDistanceToReferencePart > maxDistanceToReferencePart) {
                 
-
-                float curDistanceToPreviousPart = Vector3.Distance(currBodyPartPos, prevBodyPartPos);
-                float maxDistanceToPreviousPart = _maxDistancesToPreviousPart[i - 1];
-
-                if (curDistanceToPreviousPart > maxDistanceToPreviousPart) {
-                    Debug.Log(
-                        string.Format("Distance of {0} between {1} and {2} exceeds the maximum default value of {3}", 
-                        curDistanceToPreviousPart, bodyPart.name, previousBodyPart.name, maxDistanceToPreviousPart)
-                    );
-
-                    var prevBodyPartPosDelta = prevBodyPartPos - _lastBodyPartPositions[i - 1];
-                    //bodyPart.transform.position = bodyPart.transform.position + prevBodyPartPosDelta;
-                }
-
-                Vector3 direction = currBodyPartPos - prevBodyPartPos;
-                Quaternion toRotation = Quaternion.FromToRotation(bodyPart.transform.right, direction);            
-
-                Debug.Log(bodyPart.name + " TO ROTATION: " + toRotation);
-                if (
-                    toRotation.x > 0f ||
-                    toRotation.y > 0f ||
-                    toRotation.z > 0f 
-                ) {
-                    _antBodyParts[i].transform.rotation = toRotation;//Quaternion.Lerp(_antBodyParts[i].transform.rotation, toRotation, 20.0f * Time.time);    
-
-                    Debug.Log("roit" + _antBodyParts[i].transform.rotation.eulerAngles);
-                     Debug.Log("norm" + toRotation.eulerAngles);
-
-                                     Debug.Log(
-                        string.Format("Rotated {0} towards {1}. To Rotation: {2}", 
-                        bodyPart.name, previousBodyPart.name, toRotation.eulerAngles)
-                    );  
-                }
+                Debug.Log(
+                    string.Format("Distance of {0} between {1} and {2} exceeds the maximum default value of {3}", 
+                    curDistanceToReferencePart, curBodyPart.name, refBodyParty.name, maxDistanceToReferencePart)
+                );
+                
+                this.MoveBodyPart(curBodyPart, refBodyPartPos - _lastJointPosition);
             }
             
-            _lastBodyPartPositions[i] = bodyPart.transform.position;
-            previousBodyPart = bodyPart;    
+            Vector3 direction = curBodyPartPos - refBodyPartPos;
+            Quaternion toRotation = Quaternion.FromToRotation(curBodyPart.transform.right, direction);
+
+            if (toRotation.x > 0f || toRotation.y > 0f || toRotation.z > 0f) {
+
+                Debug.Log(
+                    string.Format("Rotated {0} towards {1}. To Rotation: {2}", 
+                    curBodyPart.name, refBodyParty.name, toRotation.eulerAngles)
+                ); 
+
+                this.RotateBodyPart(refBodyParty.transform, curBodyPart);               
+            }
+            
+            _lastBodyPartPositions[i] = curBodyPart.transform.position;
         }    
+
+        _lastJointPosition = _joint.transform.position;
     }
 
-    public void DoLogicTwo() {
-        
-                var lookRotation = Vector3.SignedAngle(_antBodyParts[1].transform.position, _antBodyParts[0].transform.position, Vector3.right);
-                //Debug.Log(string.Format("Look rotation for {0} is {1}", _antBodyParts[1], lookRotation));
-                //if (lookRotation > 0) {
-                    //_antBodyParts[1].transform.RotateAround(_antBodyParts[1].transform.position, Vector3.right, lookRotation);                              
-                    //_antBodyParts[1].transform.LookAt(_antBodyParts[0].transform, Vector3.up);
-                    //_antBodyParts[1].transform.LookAt(new Vector3(1.0f, 0.0f, 0.0f), lookRotation, Space.Self);
-
-                    Vector3 direction = _antBodyParts[1].transform.position - _antBodyParts[0].transform.position;
-                    Debug.Log(direction);
-                    Quaternion toRotation = Quaternion.FromToRotation(_antBodyParts[1].transform.up, direction);
-                    Debug.Log(toRotation);
-                    _antBodyParts[1].transform.rotation = Quaternion.Lerp(_antBodyParts[1].transform.rotation, toRotation, 2.0f * Time.time);
-                //}
-
-        
-        
+    private void MoveBodyPart(GameObject bodyPartToMove, Vector3 referencePosition) {
+        bodyPartToMove.transform.position = bodyPartToMove.transform.position + referencePosition;
     }
 
-    public void DoLogic() {
-                
-        GameObject previousBodyPart = null;
-        for(int i = 0; i < _antBodyParts.Count; i++) {
-            
-            var bodyPart = _antBodyParts[i];            
-            if (previousBodyPart != null) {            
-                                
-                Vector3 currBodyPartPos = bodyPart.transform.position;
-                Vector3 prevBodyPartPos = previousBodyPart.transform.position;
+    private void RotateBodyPart(Transform referenceTransform, GameObject bodyPartToRotate) {
+        bodyPartToRotate.transform.LookAt(referenceTransform, Vector3.up);
+        Debug.Log(bodyPartToRotate.transform.rotation);
 
-                Vector3 direction = _antBodyParts[i].transform.position - _antBodyParts[i - 1].transform.position;
-                Quaternion toRotation = Quaternion.FromToRotation(_antBodyParts[i].transform.up, direction);            
+        var offset = 90f;
+        if (bodyPartToRotate.transform.rotation.x <= -0.7f) {
+            //offset = 0;
+        }
 
-                if (
-                    toRotation.x > 0f ||
-                    toRotation.y > 0f ||
-                    toRotation.z > 0f 
-                ) {
-                    _antBodyParts[i].transform.rotation = toRotation;//Quaternion.Lerp(_antBodyParts[i].transform.rotation, toRotation, 20.0f * Time.time);    
-
-                    Debug.Log("roit" + _antBodyParts[i].transform.rotation.eulerAngles);
-                     Debug.Log("norm" + toRotation.eulerAngles);
-
-                                     Debug.Log(
-                        string.Format("Rotated {0} towards {1}. To Rotation: {2}", 
-                        bodyPart.name, previousBodyPart.name, toRotation.eulerAngles)
-                    );  
-                }
-
-
-                
-                
-                
-          
-
-                float curDistanceToPreviousPart = Vector3.Distance(currBodyPartPos, prevBodyPartPos);
-                float maxDistanceToPreviousPart = _maxDistancesToPreviousPart[i - 1];
-
-                if (curDistanceToPreviousPart > maxDistanceToPreviousPart) {
-                    Debug.Log(
-                        string.Format("Distance of {0} between {1} and {2} exceeds the maximum default value of {3}", 
-                        curDistanceToPreviousPart, bodyPart.name, previousBodyPart.name, maxDistanceToPreviousPart)
-                    );
-
-                    var prevBodyPartPosDelta = prevBodyPartPos - _lastBodyPartPositions[i - 1];
-                    //bodyPart.transform.position = Vector3.MoveTowards(currBodyPartPos, prevBodyPartPos, 2.0f * Time.deltaTime);
-                }
-            }
-            
-            _lastBodyPartPositions[i] = bodyPart.transform.position;
-            previousBodyPart = bodyPart;    
-
-            if (i > 2) {
-                break;
-            }
-        }    
+        bodyPartToRotate.transform.Rotate(Vector3.left, offset);             
     }
 }
