@@ -2,55 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AntJoint : MonoBehaviour
-{
- 
-    public List<GameObject> _otherLegParts;
- 
+public class AntClaw : MonoBehaviour
+{ 
     private Rigidbody _rigidbody;
     private List<Vector3> _clawDestinations;
     private bool _adheredToSomething = false;
     
-    
     private List<Vector3> defaultBodyPartsOffset;
     private Vector3 lastMainPosition; 
     private Vector3 mainPositionDelta;
-    
-    public GameObject partFrom;
-    public GameObject partTo;
-
-    private ABP_References abpRefs;
+    public GameObject tarsus;
 
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();      
-           
-
-    
-
-        abpRefs = new ABP_References(new List<GameObject>{partFrom, partTo});
- 
     }
 
     void FixedUpdate() {
         
         Vector3 currentMainPosition = transform.position;
-        mainPositionDelta = currentMainPosition - lastMainPosition;            
-
+        mainPositionDelta = currentMainPosition - lastMainPosition;                  
         lastMainPosition = currentMainPosition;
 
-        abpRefs.DoLogic();
-        
-        if (Input.GetKeyDown(KeyCode.B)) {
-            abpRefs.DoLogicTwo();
-
-        }
-        
+        Debug.Log("Claw position:" + gameObject.transform.position);
+        Debug.Log("Claw rotation:" + gameObject.transform.rotation);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J)) {
+        if (Input.GetKeyDown(KeyCode.Z)) {
+            _rigidbody.isKinematic = false;
+            _rigidbody.AddForce(new Vector3(0.0f, 10.0f, 0.0f), ForceMode.Impulse);
+        }
+
+        if (Input.GetKeyDown(KeyCode.C)) {
 
             _rigidbody.isKinematic = false;
             _rigidbody.useGravity = false;
@@ -75,6 +60,30 @@ public class AntJoint : MonoBehaviour
             } else {
             	_clawDestinations.RemoveAt(0);
             }
+        }
+    }
+    
+    void OnCollisionEnter(Collision other) {
+        
+        if(other.collider.tag == "floor" && !_adheredToSomething) {            
+            Debug.Log("floor");
+            
+            //_rigidbody.isKinematic = true;
+            _adheredToSomething = true;
+
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero; 
+
+            //Vector3 newPosition = transform.position + new Vector3(0.0f, 0.05f, 0.0f);
+            //transform.position = newPosition;
+        }
+    }
+
+    void OnCollisionExit(Collision other) {
+        Debug.Log("exit floor");
+        if(other.collider.tag == "floor") {
+            //_rigidbody.isKinematic = false;
+            _adheredToSomething = false;                        
         }
     }
 }

@@ -17,12 +17,12 @@ public class AntLeg : MonoBehaviour
 
     public Text guiText;
 
-    private ABP_References abpRefs;
+    private AntBodyParts abpRefs;
 
     
 
     void Start() {
-        abpRefs = new ABP_References(new List<GameObject>{claw, tarsus, tarsusJoint, tibia, tibiaJoint, femur, femurJoint, shoulder});
+        abpRefs = new AntBodyParts(gameObject, new List<GameObject>{claw, tarsus, tarsusJoint, tibia, tibiaJoint, femur, femurJoint, shoulder});
     }
 
     void FixedUpdate() {
